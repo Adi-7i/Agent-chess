@@ -75,6 +75,15 @@ function extractTextFromResponse(data) {
     }
   }
 
+  // Some OpenAI-compatible gateways/models return reasoning content separately.
+  if (Array.isArray(data.choices) && data.choices[0]?.message?.reasoning_content) {
+    return String(data.choices[0].message.reasoning_content);
+  }
+
+  if (Array.isArray(data.choices) && typeof data.choices[0]?.text === 'string') {
+    return String(data.choices[0].text);
+  }
+
   if (Array.isArray(data.content) && data.content[0]?.text) {
     return String(data.content[0].text);
   }
@@ -87,7 +96,8 @@ function extractTextFromResponse(data) {
     return data.output_text;
   }
 
-  return JSON.stringify(data);
+  // Avoid returning JSON blobs; it can accidentally match a fake UCI pattern.
+  return '';
 }
 
 function detectProvider(endpoint) {
@@ -103,7 +113,9 @@ function detectProvider(endpoint) {
 
 async function requestMove(playerKey, fen) {
   const config = getConfigFor(playerKey);
-  const prompt = `You are a chess engine. Given FEN: ${fen}, return ONLY a legal move in UCI format.`;
+  // Keep this prompt extremely minimal to avoid Azure content-filter false positives.
+  // We validate legality server-side with chess.js.
+  const prompt = `FEN: ${fen}\nMove:`;
   const provider = detectProvider(config.endpoint);
 
   if (!config.endpoint) {
@@ -128,7 +140,7 @@ async function requestMove(playerKey, fen) {
     body = {
       model: config.model || 'claude-3-5-sonnet-latest',
       max_tokens: 32,
-      system: 'You are a chess engine. Output exactly one move in UCI format only.',
+      system: 'Reply with a single chess move in UCI format (example: e2e4).',
       messages: [
         {
           role: 'user',
@@ -151,7 +163,7 @@ async function requestMove(playerKey, fen) {
       messages: [
         {
           role: 'system',
-          content: 'You are a chess engine. Output exactly one move in UCI format only.'
+          content: 'Reply with a single chess move in UCI format (example: e2e4).'
         },
         {
           role: 'user',
@@ -159,7 +171,8 @@ async function requestMove(playerKey, fen) {
         }
       ],
       temperature: 0,
-      max_tokens: 12
+      max_tokens: 64,
+      stop: ['\n']
     };
   }
 

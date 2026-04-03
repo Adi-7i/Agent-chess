@@ -229,7 +229,7 @@ class ChessGame {
         error: response.error || null
       });
 
-      const normalizedMove = normalizeUci(response.move || response.rawResponse);
+      const normalizedMove = normalizeUci(response.move);
 
       if (normalizedMove && legalSet.has(normalizedMove)) {
         return {

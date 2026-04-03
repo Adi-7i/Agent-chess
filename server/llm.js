@@ -135,11 +135,12 @@ Important:
       body = {
         model: this.model || 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'You are a chess engine. Return ONLY a chess move in UCI format. No explanations.' },
+          { role: 'system', content: 'Reply with a single chess move in UCI format (example: e2e4).' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 50
+        max_tokens: 64,
+        stop: ['\n']
       };
     } else if (isAnthropic) {
       // Anthropic Claude format
@@ -148,7 +149,7 @@ Important:
       body = {
         model: this.model || 'claude-3-sonnet-20240229',
         max_tokens: 50,
-        system: 'You are a chess engine. Return ONLY a chess move in UCI format. No explanations.',
+        system: 'Return exactly one legal chess move in UCI format.',
         messages: [
           { role: 'user', content: prompt }
         ]

@@ -1,0 +1,214 @@
+# ♟️ Autonomous LLM vs LLM Chess Web Application
+
+## 📌 Overview
+
+This project is a fully autonomous web-based chess application where two AI agents (LLMs) compete against each other without any human intervention.
+
+The system simulates a real chess match where:
+
+* Each AI independently analyzes the board
+* Makes strategic decisions
+* Plays according to official chess rules
+
+The human user acts only as a spectator.
+
+---
+
+## 🎯 Objectives
+
+* Build a real-time chess game playable in browser
+* Enable LLM vs LLM competition
+* Ensure strict adherence to chess rules
+* Provide smooth and interactive UI for spectators
+
+---
+
+## 🧠 Core Concept
+
+The application separates responsibilities into two parts:
+
+### 1. Decision Layer (LLMs)
+
+* Each LLM receives board state (FEN)
+* Generates next move based on its reasoning
+
+### 2. Rule Engine (chess.js)
+
+* Validates moves
+* Enforces chess rules
+* Maintains game state
+
+👉 Important: LLMs DO NOT control rules, only decisions.
+
+---
+
+## 🏗️ System Architecture
+
+Frontend (React / JS)
+↓
+WebSocket (Socket.io)
+↓
+Backend (Node.js + Express)
+↓
+Game Engine (chess.js)
+↓
+LLM APIs (Agent X vs Agent Y)
+
+---
+
+## ⚙️ Tech Stack
+
+### Backend:
+
+* Node.js
+* Express.js
+* chess.js
+* dotenv
+* axios / fetch
+
+### Frontend:
+
+* React (or Vanilla JS)
+* chessboard.js
+
+### Realtime:
+
+* Socket.io
+
+---
+
+## 🔁 Game Flow
+
+1. User clicks "Start Game"
+
+2. Assigns:
+
+   * LLM_X → White or Black
+   * LLM_Y → White or Black
+
+3. Game loop starts automatically:
+
+   * Get current board (FEN)
+   * Send to active LLM
+   * Receive move (UCI format)
+   * Validate move
+   * Apply move
+   * Update UI
+
+4. Repeat until:
+
+   * Checkmate
+   * Draw
+   * Max move limit reached
+
+---
+
+## 🤖 LLM Interaction
+
+### Input:
+
+* FEN string (board state)
+
+### Prompt:
+
+"You are a chess engine. Given this position, return ONLY one legal move in UCI format."
+
+### Output:
+
+* Example: e2e4
+
+---
+
+## 🛡️ Validation & Safety
+
+* All moves validated via chess.js
+
+* Invalid move handling:
+
+  * Retry (max 2 attempts)
+  * Fallback to random legal move
+
+* API error handling:
+
+  * Timeout protection
+  * Response sanitization
+
+---
+
+## 🌐 Frontend Features
+
+* Live chessboard
+* Move animations
+* Move history
+* Game status display
+* Start Game control
+
+🚫 No manual move input allowed
+
+---
+
+## 🔐 Environment Configuration
+
+.env file:
+
+LLM_X_API_KEY=
+LLM_Y_API_KEY=
+LLM_X_ENDPOINT=
+LLM_Y_ENDPOINT=
+
+---
+
+## 📁 Project Structure
+
+/server
+index.js
+gameEngine.js
+llmController.js
+
+/client
+src/
+App.js
+Board.js
+
+---
+
+## ⚡ Key Features
+
+* Fully autonomous gameplay
+* Real-time updates
+* AI vs AI competition
+* Rule-compliant engine
+* Minimal human interaction
+
+---
+
+## 🚧 Challenges
+
+* LLMs generating invalid moves
+* Inconsistent strategy quality
+* API latency
+
+---
+
+## 🚀 Future Improvements
+
+* Integrate Stockfish for stronger gameplay
+* Add evaluation bar
+* Game replay system
+* Multiple AI tournaments
+* Analytics dashboard
+
+---
+
+## 🧠 Conclusion
+
+This project demonstrates how LLMs can simulate strategic decision-making in a rule-based environment like chess.
+
+It creates a unique system where:
+👉 AI competes
+👉 Humans observe
+👉 Logic enforces fairness
+
+---
+
+End of Document
