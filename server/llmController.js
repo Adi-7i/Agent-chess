@@ -2,24 +2,53 @@ const axios = require('axios');
 
 const DEFAULT_TIMEOUT_MS = Number.parseInt(process.env.LLM_TIMEOUT || '15000', 10);
 const MOVE_REGEX = /([a-h][1-8][a-h][1-8][qrbn]?)/i;
+const SHARED_OPENAI_MODELS = String(process.env.OPENAI_CHAT_MODELS || '')
+  .split(',')
+  .map((model) => model.trim())
+  .filter(Boolean);
+
+function buildChatCompletionsEndpoint(baseUrl) {
+  const normalized = String(baseUrl || '').trim().replace(/\/+$/, '');
+  if (!normalized) return '';
+  if (normalized.endsWith('/chat/completions')) {
+    return normalized;
+  }
+  return `${normalized}/chat/completions`;
+}
+
+function pickModelForPlayer(playerKey) {
+  if (SHARED_OPENAI_MODELS.length === 0) {
+    return playerKey === 'LLM_X' ? 'Kimi-K2.5' : 'DeepSeek-R1';
+  }
+
+  if (playerKey === 'LLM_X') {
+    const kimiModel = SHARED_OPENAI_MODELS.find((model) => /kimi/i.test(model));
+    return kimiModel || SHARED_OPENAI_MODELS[0];
+  }
+
+  const deepseekR1Model = SHARED_OPENAI_MODELS.find((model) => /deepseek-r1/i.test(model));
+  return deepseekR1Model || SHARED_OPENAI_MODELS[SHARED_OPENAI_MODELS.length - 1];
+}
 
 function getConfigFor(playerKey) {
   const isX = playerKey === 'LLM_X';
+  const sharedApiKey = process.env.OPENAI_API_KEY || '';
+  const sharedEndpoint = buildChatCompletionsEndpoint(process.env.OPENAI_BASE_URL);
 
   if (isX) {
     return {
       playerKey,
-      apiKey: process.env.LLM_X_API_KEY || process.env.LLM1_API_KEY || '',
-      endpoint: process.env.LLM_X_ENDPOINT || process.env.LLM1_ENDPOINT || '',
-      model: process.env.LLM_X_MODEL || process.env.LLM1_MODEL || 'gpt-4o-mini'
+      apiKey: process.env.LLM_X_API_KEY || process.env.LLM1_API_KEY || sharedApiKey,
+      endpoint: process.env.LLM_X_ENDPOINT || process.env.LLM1_ENDPOINT || sharedEndpoint,
+      model: process.env.LLM_X_MODEL || process.env.LLM1_MODEL || pickModelForPlayer('LLM_X')
     };
   }
 
   return {
     playerKey,
-    apiKey: process.env.LLM_Y_API_KEY || process.env.LLM2_API_KEY || '',
-    endpoint: process.env.LLM_Y_ENDPOINT || process.env.LLM2_ENDPOINT || '',
-    model: process.env.LLM_Y_MODEL || process.env.LLM2_MODEL || 'gpt-4o-mini'
+    apiKey: process.env.LLM_Y_API_KEY || process.env.LLM2_API_KEY || sharedApiKey,
+    endpoint: process.env.LLM_Y_ENDPOINT || process.env.LLM2_ENDPOINT || sharedEndpoint,
+    model: process.env.LLM_Y_MODEL || process.env.LLM2_MODEL || pickModelForPlayer('LLM_Y')
   };
 }
 

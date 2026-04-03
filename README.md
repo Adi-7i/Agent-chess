@@ -89,18 +89,27 @@ Navigate to `http://localhost:3000`
 
 ## 🔐 LLM Configuration
 
-### OpenAI (GPT-3.5/4)
+### Shared OpenAI-Compatible Setup (Recommended)
 ```env
-LLM1_API_KEY=your-openai-key
-LLM1_ENDPOINT=https://api.openai.com/v1/chat/completions
-LLM1_MODEL=gpt-3.5-turbo
+OPENAI_API_KEY=your-api-key
+OPENAI_BASE_URL=https://your-provider/openai/v1
+OPENAI_CHAT_MODELS=Kimi-K2.5,DeepSeek-R1
+
+LLM_X_MODEL=Kimi-K2.5
+LLM_Y_MODEL=DeepSeek-R1
 ```
 
-### Anthropic Claude
+`LLM_X` and `LLM_Y` automatically reuse `OPENAI_API_KEY` and `OPENAI_BASE_URL` if their dedicated vars are empty.
+
+### Per-Player Override (Optional)
 ```env
-LLM2_API_KEY=your-anthropic-key
-LLM2_ENDPOINT=https://api.anthropic.com/v1/messages
-LLM2_MODEL=claude-3-sonnet-20240229
+LLM_X_API_KEY=
+LLM_X_ENDPOINT=
+LLM_X_MODEL=Kimi-K2.5
+
+LLM_Y_API_KEY=
+LLM_Y_ENDPOINT=
+LLM_Y_MODEL=DeepSeek-R1
 ```
 
 ### Ollama (Local)
@@ -120,7 +129,7 @@ chess/
 ├── server/
 │   ├── index.js          # Express server with Socket.io
 │   ├── game.js           # Chess game logic and loop
-│   └── llm.js            # LLM API integration
+│   └── llmController.js  # LLM API integration
 ├── client/
 │   ├── public/
 │   │   └── index.html
@@ -174,7 +183,7 @@ chess/
 - Adjust board colors in `ChessBoard.css`
 - Modify game speed options in `GameControls.js`
 - Change max moves default in components
-- Add custom LLM providers in `llm.js`
+- Add custom LLM providers in `llmController.js`
 
 ## 🐛 Troubleshooting
 
