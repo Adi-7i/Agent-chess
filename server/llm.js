@@ -5,6 +5,20 @@
 
 const axios = require('axios');
 
+function buildChatCompletionsEndpoint(baseUrl) {
+  const normalized = String(baseUrl || '').trim().replace(/\/+$/, '');
+  if (!normalized) return '';
+  if (normalized.endsWith('/chat/completions')) return normalized;
+  return `${normalized}/chat/completions`;
+}
+
+function parseSharedModels() {
+  return String(process.env.OPENAI_CHAT_MODELS || '')
+    .split(',')
+    .map((model) => model.trim())
+    .filter(Boolean);
+}
+
 class LLMClient {
   constructor(playerColor) {
     this.playerColor = playerColor;
@@ -19,6 +33,23 @@ class LLMClient {
       this.apiKey = process.env.LLM2_API_KEY || '';
       this.endpoint = process.env.LLM2_ENDPOINT || '';
       this.model = process.env.LLM2_MODEL || '';
+    }
+
+    // Shared OpenAI-compatible fallback (prevents accidental mock-mode)
+    const sharedApiKey = process.env.OPENAI_API_KEY || '';
+    const sharedEndpoint = buildChatCompletionsEndpoint(process.env.OPENAI_BASE_URL);
+    const sharedModels = parseSharedModels();
+    const defaultWhiteModel =
+      sharedModels.find((m) => /kimi/i.test(m)) || sharedModels[0] || 'Kimi-K2.5';
+    const defaultBlackModel =
+      sharedModels.find((m) => /deepseek-r1/i.test(m)) ||
+      sharedModels[sharedModels.length - 1] ||
+      'DeepSeek-R1';
+
+    if (!this.apiKey && sharedApiKey) this.apiKey = sharedApiKey;
+    if (!this.endpoint && sharedEndpoint) this.endpoint = sharedEndpoint;
+    if (!this.model) {
+      this.model = playerColor === 'white' ? defaultWhiteModel : defaultBlackModel;
     }
     
     this.timeout = parseInt(process.env.LLM_TIMEOUT || '15000');
