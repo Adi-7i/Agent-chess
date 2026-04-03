@@ -220,7 +220,7 @@ class ChessGame {
     const legalSet = new Set(legalUciMoves);
 
     for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
-      const response = await this.requestMoveFromPlayer(playerKey, fen);
+      const response = await this.requestMoveFromPlayer(playerKey, fen, legalUciMoves);
 
       this.logDecision('LLM response', {
         player: playerKey,
@@ -250,12 +250,12 @@ class ChessGame {
     return null;
   }
 
-  async requestMoveFromPlayer(playerKey, fen) {
+  async requestMoveFromPlayer(playerKey, fen, legalUciMoves) {
     if (playerKey === 'LLM_X') {
-      return getMoveFromLLM_X(fen);
+      return getMoveFromLLM_X(fen, legalUciMoves);
     }
 
-    return getMoveFromLLM_Y(fen);
+    return getMoveFromLLM_Y(fen, legalUciMoves);
   }
 
   recordMove(move, metadata) {

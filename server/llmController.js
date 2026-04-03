@@ -1,7 +1,9 @@
 const axios = require('axios');
 
 const DEFAULT_TIMEOUT_MS = Number.parseInt(process.env.LLM_TIMEOUT || '15000', 10);
+const DEFAULT_MAX_TOKENS = Number.parseInt(process.env.LLM_MAX_TOKENS || '512', 10);
 const MOVE_REGEX = /([a-h][1-8][a-h][1-8][qrbn]?)/i;
+const MOVE_REGEX_GLOBAL = /[a-h][1-8][a-h][1-8][qrbn]?/gi;
 const SHARED_OPENAI_MODELS = String(process.env.OPENAI_CHAT_MODELS || '')
   .split(',')
   .map((model) => model.trim())
@@ -58,6 +60,28 @@ function normalizeUci(candidate) {
   return match ? match[1] : null;
 }
 
+function extractCandidateMoves(text) {
+  if (!text || typeof text !== 'string') return [];
+  const matches = text.toLowerCase().match(MOVE_REGEX_GLOBAL) || [];
+  return [...new Set(matches)];
+}
+
+function pickLegalCandidate(text, legalMoves) {
+  const legalSet = new Set((legalMoves || []).map((move) => String(move).toLowerCase()));
+  if (legalSet.size === 0) {
+    return normalizeUci(text);
+  }
+
+  const candidates = extractCandidateMoves(text);
+  for (let i = candidates.length - 1; i >= 0; i -= 1) {
+    if (legalSet.has(candidates[i])) {
+      return candidates[i];
+    }
+  }
+
+  return null;
+}
+
 function extractTextFromResponse(data) {
   if (!data) return '';
 
@@ -70,8 +94,11 @@ function extractTextFromResponse(data) {
     if (typeof content === 'string') {
       return content;
     }
-    if (Array.isArray(content) && content[0]?.text) {
-      return String(content[0].text);
+    if (Array.isArray(content)) {
+      const textPart = content.find((part) => typeof part?.text === 'string');
+      if (textPart?.text) {
+        return String(textPart.text);
+      }
     }
   }
 
@@ -96,6 +123,19 @@ function extractTextFromResponse(data) {
     return data.output_text;
   }
 
+  if (Array.isArray(data.output)) {
+    for (const outputItem of data.output) {
+      if (Array.isArray(outputItem?.content)) {
+        const textPart = outputItem.content.find(
+          (part) => part?.type === 'output_text' && typeof part?.text === 'string'
+        );
+        if (textPart?.text) {
+          return String(textPart.text);
+        }
+      }
+    }
+  }
+
   // Avoid returning JSON blobs; it can accidentally match a fake UCI pattern.
   return '';
 }
@@ -111,11 +151,16 @@ function detectProvider(endpoint) {
   return 'openai';
 }
 
-async function requestMove(playerKey, fen) {
+async function requestMove(playerKey, fen, legalMoves = []) {
   const config = getConfigFor(playerKey);
-  // Keep this prompt extremely minimal to avoid Azure content-filter false positives.
-  // We validate legality server-side with chess.js.
-  const prompt = `FEN: ${fen}\nMove:`;
+  const legalMovesList = legalMoves.join(', ');
+  const prompt = [
+    'You are a chess engine.',
+    `Position FEN: ${fen}`,
+    `Legal moves (UCI): ${legalMovesList}`,
+    'Return exactly one move from the legal list in UCI format (example: e2e4).',
+    'Output only the move and nothing else.'
+  ].join('\n');
   const provider = detectProvider(config.endpoint);
 
   if (!config.endpoint) {
@@ -157,6 +202,7 @@ async function requestMove(playerKey, fen) {
   } else {
     if (config.apiKey) {
       headers.Authorization = `Bearer ${config.apiKey}`;
+      headers['api-key'] = config.apiKey;
     }
     body = {
       model: config.model,
@@ -171,8 +217,7 @@ async function requestMove(playerKey, fen) {
         }
       ],
       temperature: 0,
-      max_tokens: 64,
-      stop: ['\n']
+      max_tokens: DEFAULT_MAX_TOKENS
     };
   }
 
@@ -183,7 +228,7 @@ async function requestMove(playerKey, fen) {
     });
 
     const rawText = extractTextFromResponse(response.data).trim();
-    const move = normalizeUci(rawText);
+    const move = pickLegalCandidate(rawText, legalMoves);
 
     return {
       move,
@@ -203,12 +248,12 @@ async function requestMove(playerKey, fen) {
   }
 }
 
-async function getMoveFromLLM_X(fen) {
-  return requestMove('LLM_X', fen);
+async function getMoveFromLLM_X(fen, legalMoves = []) {
+  return requestMove('LLM_X', fen, legalMoves);
 }
 
-async function getMoveFromLLM_Y(fen) {
-  return requestMove('LLM_Y', fen);
+async function getMoveFromLLM_Y(fen, legalMoves = []) {
+  return requestMove('LLM_Y', fen, legalMoves);
 }
 
 module.exports = {
