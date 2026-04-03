@@ -1,0 +1,121 @@
+/* LogPanel styles */
+.log-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  max-height: 200px;
+}
+
+.log-panel.expanded {
+  max-height: 500px;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  cursor: pointer;
+  border-bottom: 2px solid #e9ecef;
+  transition: background 0.2s ease;
+}
+
+.log-header:hover {
+  background: #e9ecef;
+}
+
+.log-header .panel-title {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 5px;
+  transition: transform 0.2s ease;
+}
+
+.log-content {
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.no-logs {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+}
+
+.log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #2d2d2d;
+  border-radius: 4px;
+  border-left: 3px solid #007bff;
+}
+
+.log-time {
+  font-size: 0.75rem;
+  color: #858585;
+  font-weight: 600;
+}
+
+.log-message {
+  color: #d4d4d4;
+  font-weight: 500;
+}
+
+.log-data {
+  font-size: 0.8rem;
+  color: #9cdcfe;
+  word-break: break-all;
+}
+
+.log-footer {
+  padding: 10px 20px;
+  background: #f8f9fa;
+  border-top: 2px solid #e9ecef;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Scrollbar styling */
+.log-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.log-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

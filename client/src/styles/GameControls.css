@@ -1,0 +1,165 @@
+/* GameControls styles */
+.game-controls {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.player-assignment {
+  margin-bottom: 16px;
+}
+
+.control-section-title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #2f3a45;
+}
+
+.assignment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.color-select {
+  width: 100%;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.control-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-start {
+  background: #28a745;
+  color: white;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-restart {
+  background: #007bff;
+  color: white;
+}
+
+.btn-restart:hover:not(:disabled) {
+  background: #0069d9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-stop {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-stop:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.speed-control,
+.max-moves-control {
+  margin-bottom: 15px;
+}
+
+.control-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #495057;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.speed-btn {
+  padding: 8px 16px;
+  border: 2px solid #007bff;
+  background: white;
+  color: #007bff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.speed-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.speed-btn.active {
+  background: #007bff;
+  color: white;
+}
+
+.max-moves-input {
+  margin-top: 6px;
+  padding: 6px 12px;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100px;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .assignment-grid {
+    grid-template-columns: 1fr;
+  }
+}

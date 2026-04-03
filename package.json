@@ -1,0 +1,26 @@
+{
+  "name": "llm-chess-game",
+  "version": "1.0.0",
+  "description": "A web-based chess game where two LLM agents play against each other",
+  "main": "server/index.js",
+  "scripts": {
+    "server": "node server/index.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install:all": "npm install && cd client && npm install"
+  },
+  "keywords": ["chess", "llm", "ai", "socket.io"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "chess.js": "^1.0.0-beta.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
